@@ -57,7 +57,7 @@ const createReminder = async (
 // Reminder message sending logic
 const sendReminderMessage = async () => {
   const now = new Date();
-
+  console.log("Checking for reminders at", new Date().toLocaleTimeString());
   // Find all reminders that need to be sent at this time
   const reminders = await Reminder.find({ time: { $lte: now }, sent: false });
 
