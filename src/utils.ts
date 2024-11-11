@@ -2,8 +2,13 @@
 
 import mongoose from "mongoose";
 import { ChatMessage, User, Reminder, ErrorLog } from "./models.js";
-import { generateContent, model } from "./geminiAPI.js";
+import { generateContent, model, reminderModel } from "./geminiAPI.js";
 import { bot, sendTelegramMessage } from "./telegramBot.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID; // Your personal chat ID in Telegram
 
 const findOrCreateUser = async (telegramId: string, name?: string) => {
   let user = await User.findOne({ telegramId });
@@ -18,7 +23,7 @@ const findOrCreateUser = async (telegramId: string, name?: string) => {
 const saveChatMessage = async (
   userId: mongoose.Types.ObjectId,
   role: "user" | "model",
-  text: string,
+  text: string
 ) => {
   const message = new ChatMessage({ userId, role, text });
   await message.save();
@@ -37,7 +42,7 @@ const createReminder = async (
   userId: mongoose.Types.ObjectId,
   message: string,
   time: string,
-  context?: string,
+  context?: string
 ): Promise<void> => {
   try {
     const newReminder = new Reminder({
@@ -95,7 +100,7 @@ const sendReminderMessage = async () => {
       await saveChatMessage(
         user._id as mongoose.Types.ObjectId,
         "model",
-        message,
+        message
       );
 
       // Send the reminder message to the user via Telegram
@@ -125,7 +130,7 @@ function escapeCharacters(input: string, charsToEscape: string[]): string {
 const logError = async (
   error: Error,
   additionalInfo: string = "",
-  adminChatId: string,
+  adminChatId: string
 ): Promise<void> => {
   try {
     // Save error to database
@@ -188,6 +193,86 @@ function parseTextResponse(inputString: string) {
   };
 }
 
+export const processTextResponse = (text: string) => {
+  const parsedResult = parseTextResponse(text);
+  return {
+    codeBlocks: parsedResult.codeBlocks,
+    nonJsonText: parsedResult.nonJsonText,
+    jsonContent: parsedResult.jsonContent,
+  };
+};
+
+// 5. Reminder Handling
+
+// Creates reminders based on parsed response
+export const handleReminders = async (
+  userId: mongoose.Types.ObjectId,
+  reminders: any[]
+) => {
+  if (reminders && reminders.length > 0) {
+    for (const reminder of reminders) {
+      const createdReminder = await createReminder(
+        userId,
+        reminder.message,
+        reminder.time,
+        reminder.context
+      );
+      console.log("Created Reminder:", createdReminder);
+    }
+  }
+};
+
+// 6. Error Handling and Fallbacks
+
+// Logs error details to the system
+export const logErrorMessage = (error: Error, context: string) => {
+  logError(error, context, ADMIN_CHAT_ID as string);
+};
+
+const generateReminders = async () => {
+  console.log("Generating reminders...");
+
+  const users = await User.find();
+  for (const user of users) {
+    try {
+      const chatHistory = await getChatHistory(user.id);
+      const pendingReminder = await Reminder.find({
+        userId: user.id,
+        time: { $lte: new Date() },
+        sent: false,
+      });
+
+      if (pendingReminder.length > 0) {
+        console.log("Pending Reminders:", pendingReminder);
+        return;
+      }
+
+      // Initialize Gemini chat with history
+      const chat = reminderModel.startChat({ history: chatHistory });
+
+      const currentTime = new Date();
+      const result = await chat.sendMessage(
+        "Generate reminders if the time since the last reminder has passed" +
+          `currentTime: ${currentTime.toISOString()}`
+      );
+      const text = result.response.text();
+      console.log("reminders:", text);
+
+      try {
+        const parsedResult = processTextResponse(text);
+        await handleReminders(
+          user._id as mongoose.Types.ObjectId,
+          parsedResult.jsonContent.reminders
+        );
+      } catch (err) {
+        logErrorMessage(err as Error, "in getDynamicResponse");
+      }
+    } catch (error) {
+      logErrorMessage(error as Error, "Error with Gemini API");
+    }
+  }
+};
+
 export {
   findOrCreateUser,
   saveChatMessage,
@@ -197,4 +282,5 @@ export {
   escapeCharacters,
   logError,
   parseTextResponse,
+  generateReminders,
 };
