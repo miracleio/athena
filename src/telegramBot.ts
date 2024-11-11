@@ -51,7 +51,15 @@ export const sendTelegramMessage = async (
     // Send each part separately to the user
     for (const part of messageParts) {
       console.log("part =====>", part);
-      const escapedPart = escapeCharacters(part, ["!", ".", "-", "(", ")"]);
+      const escapedPart = escapeCharacters(part, [
+        "!",
+        ".",
+        "-",
+        "(",
+        ")",
+        "{",
+        "}",
+      ]);
       console.log("escapedPart =====>", escapedPart);
 
       await bot.sendMessage(chatId, escapedPart, {
