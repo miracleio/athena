@@ -128,16 +128,24 @@ const getDynamicResponse = async (
 
     try {
       const responseObj = JSON.parse(result.response.text());
-      const reminder = responseObj.reminder;
+      const reminders = responseObj.reminders;
 
-      if (reminder != null) {
-        const createdReminder = await createReminder(
-          user._id as mongoose.Types.ObjectId,
-          reminder.message,
-          reminder.time,
-          reminder.context,
+      if (reminders != null) {
+        reminders.foreach(
+          async (reminder: {
+            message: string;
+            time: string;
+            context: string;
+          }) => {
+            const createdReminder = await createReminder(
+              user._id as mongoose.Types.ObjectId,
+              reminder.message,
+              reminder.time,
+              reminder.context,
+            );
+            console.log("Reminder ==>", createdReminder);
+          },
         );
-        console.log("Reminder ==>", createdReminder);
       }
       // Return the response, splitting if necessary
       return splitMessage(responseObj.userMessage);
