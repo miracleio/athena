@@ -133,7 +133,7 @@ const getDynamicResponse = async (
 
       const reminders = parsedResult.jsonContent.reminders;
 
-      if (reminders != null) {
+      if (reminders != null || reminders.length > 0) {
         reminders.foreach(
           async (reminder: {
             message: string;
