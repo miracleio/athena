@@ -1,12 +1,9 @@
+// ./src/telegramBot.ts
+
 import { Application } from "express";
-import TelegramBot, {
-  Message,
-  TelegramEvents,
-  Update,
-} from "node-telegram-bot-api";
-import axios from "axios";
+import TelegramBot, { Update } from "node-telegram-bot-api";
 import dotenv from "dotenv";
-import { generateContent, model } from "./geminiAPI.js";
+import { model } from "./geminiAPI.js";
 import {
   createReminder,
   escapeCharacters,
@@ -15,7 +12,6 @@ import {
   logError,
   saveChatMessage,
 } from "./utils.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import mongoose from "mongoose";
 
 dotenv.config();

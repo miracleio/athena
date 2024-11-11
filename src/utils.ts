@@ -1,7 +1,8 @@
-import mongoose, { Document, Schema } from "mongoose";
+// ./src/utils.ts
+
+import mongoose from "mongoose";
 import { ChatMessage, User, Reminder, ErrorLog } from "./models.js";
 import { generateContent, model } from "./geminiAPI.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { bot, sendTelegramMessage } from "./telegramBot.js";
 
 const findOrCreateUser = async (telegramId: string, name?: string) => {

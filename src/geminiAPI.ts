@@ -1,3 +1,5 @@
+// ./src/geminiAPI.ts
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
 import dotenv from "dotenv";
