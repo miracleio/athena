@@ -5,4 +5,5 @@ import { generateReminders, sendReminderMessage } from "./utils.js";
 
 // Start the cron job to send reminders
 cron.schedule("* * * * *", sendReminderMessage); // Every minute
-cron.schedule("* * * * *", generateReminders); // Every minute
+// Every 3 hours
+cron.schedule("0 */3 * * *", generateReminders);
