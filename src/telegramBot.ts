@@ -182,7 +182,7 @@ const getDynamicResponse = async (
     logError(
       new Error((error as { message: string }).message),
       "Error with Gemini API:",
-      ADMIN_CHAT_ID,
+      ADMIN_CHAT_ID as string,
     );
     return ["I’m having trouble processing that. Please try again later."];
   }

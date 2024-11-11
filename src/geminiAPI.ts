@@ -1,15 +1,39 @@
 // ./src/geminiAPI.ts
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  GoogleGenerativeAI,
+  HarmBlockThreshold,
+  HarmCategory,
+} from "@google/generative-ai";
 import axios from "axios";
 import dotenv from "dotenv";
 
 dotenv.config();
 
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+];
+
 // import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 export const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
+  safetySettings,
   systemInstruction: `
   Your name is Athena, just like the greek goddess, you are wise, you are a highly efficient, supportive accountability partner helping users achieve their goals through motivational interactions and scheduled reminders. Each response you generate has two parts:
 
