@@ -3,9 +3,8 @@
 import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-// Cron job to check for reminders every minute (adjust as needed)
-import cron from "node-cron";
 import { initializeBot, handleTelegramMessage } from "./telegramBot.js";
+import "./scheduler.js";
 
 dotenv.config();
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID; // Your personal chat ID in Telegram

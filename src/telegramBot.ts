@@ -132,9 +132,10 @@ const getDynamicResponse = async (
       console.log("Parsed JSON:", parsedResult.jsonContent);
 
       const reminders = parsedResult.jsonContent.reminders;
+      console.log(reminders, !reminders);
 
-      if (reminders != null || reminders.length > 0) {
-        reminders.foreach(
+      if (reminders && (reminders != null || reminders.length > 0)) {
+        reminders.forEach(
           async (reminder: {
             message: string;
             time: string;
@@ -156,6 +157,23 @@ const getDynamicResponse = async (
         `);
     } catch (err) {
       console.log("getDynamicResponse Error ==>", err);
+      logError(
+        new Error((err as { message: string }).message),
+        "in getDynamicResponse",
+        ADMIN_CHAT_ID as string,
+      );
+
+      try {
+        const data = JSON.parse(text);
+        return splitMessage(data.userMessage);
+      } catch (err) {
+        console.log("getDynamicResponse Error ==>", err);
+        logError(
+          new Error((err as { message: string }).message),
+          "in getDynamicResponse",
+          ADMIN_CHAT_ID as string,
+        );
+      }
       // Return the response, splitting if necessary
       return splitMessage(text);
     }

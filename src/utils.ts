@@ -79,9 +79,9 @@ const sendReminderMessage = async () => {
       // });
       //
 
-      const generatedMessage = await generateContent(
-        `Create a reminder message based on this information: ${message}`,
-      );
+      // const generatedMessage = await generateContent(
+      //   `Create a reminder message that will be sent to the user based on this information: ${message}`,
+      // );
 
       // // Send the reminder message with Gemini context
       // const result = await chat.sendMessage(message);
@@ -95,11 +95,11 @@ const sendReminderMessage = async () => {
       await saveChatMessage(
         user._id as mongoose.Types.ObjectId,
         "model",
-        generatedMessage,
+        message,
       );
 
       // Send the reminder message to the user via Telegram
-      await sendTelegramMessage(user.telegramId, generatedMessage);
+      await sendTelegramMessage(user.telegramId, message);
     }
   }
 };
