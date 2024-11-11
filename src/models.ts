@@ -49,7 +49,7 @@ interface IReminder extends Document {
 const ReminderSchema: Schema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   message: { type: String, required: true },
-  time: { type: String, required: true },
+  time: { type: Date, required: true },
   sent: {
     type: Boolean,
     default: false,

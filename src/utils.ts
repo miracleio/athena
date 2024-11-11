@@ -43,7 +43,7 @@ const createReminder = async (
     const newReminder = new Reminder({
       userId,
       message,
-      time,
+      time: new Date(time),
       context,
     });
 
@@ -57,11 +57,11 @@ const createReminder = async (
 // Reminder message sending logic
 const sendReminderMessage = async () => {
   const now = new Date();
-  console.log("Checking for reminders at", new Date().toLocaleTimeString());
   // Find all reminders that need to be sent at this time
   const reminders = await Reminder.find({ time: { $lte: now }, sent: false });
 
   console.log("Reminders ==>", reminders);
+  console.log("Checking for reminders at", new Date().toISOString());
 
   // Iterate over each reminder and send the message
   for (const reminder of reminders) {
