@@ -99,7 +99,7 @@ const sendReminderMessage = async () => {
       );
 
       // Send the reminder message to the user via Telegram
-      await sendTelegramMessage(user.telegramId, message);
+      await bot.sendMessage(user.telegramId, message);
     }
   }
 };
