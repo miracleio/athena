@@ -1,0 +1,15 @@
+services:
+  athena-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - SERVER_URL=${SERVER_URL}
+      - MONGO_URI=${MONGO_URI}
+      - ADMIN_CHAT_ID=${ADMIN_CHAT_ID}
+    env_file:
+      - .env
