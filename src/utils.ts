@@ -61,6 +61,8 @@ const sendReminderMessage = async () => {
   // Find all reminders that need to be sent at this time
   const reminders = await Reminder.find({ time: { $lte: now }, sent: false });
 
+  console.log("Reminders ==>", reminders);
+
   // Iterate over each reminder and send the message
   for (const reminder of reminders) {
     const user = await mongoose.model("User").findById(reminder.userId);
