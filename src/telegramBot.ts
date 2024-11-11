@@ -10,6 +10,7 @@ import {
   findOrCreateUser,
   getChatHistory,
   logError,
+  parseTextResponse,
   saveChatMessage,
 } from "./utils.js";
 import mongoose from "mongoose";
@@ -113,6 +114,7 @@ const getDynamicResponse = async (
     const result = await chat.sendMessage(
       userInput + `currentTime: ${currentTime.toISOString()}`,
     );
+    const text = result.response.text();
 
     // Save the user message and model response to MongoDB
     await saveChatMessage(
@@ -120,15 +122,16 @@ const getDynamicResponse = async (
       "user",
       userInput,
     );
-    await saveChatMessage(
-      user._id as mongoose.Types.ObjectId,
-      "model",
-      result.response.text(),
-    );
-
+    await saveChatMessage(user._id as mongoose.Types.ObjectId, "model", text);
     try {
-      const responseObj = JSON.parse(result.response.text());
-      const reminders = responseObj.reminders;
+      // Usage
+      const parsedResult = parseTextResponse(text);
+
+      console.log("Code Blocks:", parsedResult.codeBlocks);
+      console.log("Non-JSON Text:", parsedResult.nonJsonText);
+      console.log("Parsed JSON:", parsedResult.jsonContent);
+
+      const reminders = parsedResult.jsonContent.reminders;
 
       if (reminders != null) {
         reminders.foreach(
@@ -148,11 +151,13 @@ const getDynamicResponse = async (
         );
       }
       // Return the response, splitting if necessary
-      return splitMessage(responseObj.userMessage);
+      return splitMessage(`${parsedResult.jsonContent.userMessage}
+        ${parsedResult.codeBlocks.map((x) => x)}
+        `);
     } catch (err) {
       console.log("getDynamicResponse Error ==>", err);
       // Return the response, splitting if necessary
-      return splitMessage(result.response.text());
+      return splitMessage(text);
     }
   } catch (error) {
     console.error("Error with Gemini API:", error);

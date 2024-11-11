@@ -160,6 +160,32 @@ const logError = async (
   }
 };
 
+function parseTextResponse(inputString: string) {
+  // Separate code blocks using regex pattern
+  const codeBlockPattern = /```.*?```/gs;
+  const codeBlocks = inputString.match(codeBlockPattern) || [];
+  const remainingText = inputString.replace(codeBlockPattern, "").trim();
+
+  // Extract JSON object within the remaining text
+  const jsonPattern = /{[\s\S]*}$/;
+  const jsonMatch = remainingText.match(jsonPattern);
+
+  let parsedJSON = null;
+  if (jsonMatch) {
+    try {
+      parsedJSON = JSON.parse(jsonMatch[0]);
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+    }
+  }
+
+  return {
+    codeBlocks,
+    jsonContent: parsedJSON,
+    nonJsonText: remainingText.replace(jsonPattern, "").trim(),
+  };
+}
+
 export {
   findOrCreateUser,
   saveChatMessage,
@@ -168,4 +194,5 @@ export {
   sendReminderMessage,
   escapeCharacters,
   logError,
+  parseTextResponse,
 };
